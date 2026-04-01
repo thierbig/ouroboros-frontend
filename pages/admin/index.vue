@@ -292,7 +292,11 @@ const activeTab = ref('sessions')
 
 // --- Sessions tab ---
 const sessions = ref<any[]>([])
-const stats = ref({ session_count: 0, total_tokens: 0, total_cost: 0 })
+const stats = computed(() => ({
+  session_count: sessions.value.length,
+  total_tokens: sessions.value.reduce((sum: number, s: any) => sum + (s.total_tokens || 0), 0),
+  total_cost: sessions.value.reduce((sum: number, s: any) => sum + (s.total_cost || 0), 0),
+}))
 const loading = ref(true)
 const search = ref('')
 const expandedSessions = ref<Set<string>>(new Set())
@@ -511,12 +515,7 @@ async function deleteProject(p: Project) {
 // --- Init ---
 async function fetchSessions() {
   try {
-    const [sessionsData, statsData] = await Promise.all([
-      $fetch<any[]>(`${apiUrl}/admin/sessions`),
-      $fetch<any>(`${apiUrl}/admin/stats`),
-    ])
-    sessions.value = sessionsData
-    stats.value = statsData
+    sessions.value = await $fetch<any[]>(`${apiUrl}/admin/sessions`)
   } catch {
     // Backend not reachable
   } finally {
