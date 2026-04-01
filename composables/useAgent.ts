@@ -239,6 +239,8 @@ export function useAgent(workingDirRef?: Ref<string>) {
 
       case 'status':
         agentStatus.value = event.message || null
+        if (event.iteration != null) currentIteration.value = event.iteration
+        if (event.max_iterations != null) maxIterations.value = event.max_iterations
         break
 
       case 'self_correcting':

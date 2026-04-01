@@ -32,6 +32,8 @@ export interface ResponseEvent {
 export interface StatusEvent {
   type: 'status'
   message: string
+  iteration?: number
+  max_iterations?: number
 }
 
 export interface DoneEvent {
