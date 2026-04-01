@@ -8,7 +8,11 @@ export function useAdmin() {
   const sessions = ref<SessionSummary[]>([])
   const currentSession = ref<SessionDetail | null>(null)
   const chunks = ref<Chunk[]>([])
-  const stats = ref<AdminStats>({ total_tokens: 0, total_cost: 0, session_count: 0 })
+  const stats = computed<AdminStats>(() => ({
+    session_count: sessions.value.length,
+    total_tokens: sessions.value.reduce((sum, s) => sum + (s.total_tokens || 0), 0),
+    total_cost: sessions.value.reduce((sum, s) => sum + (s.total_cost || 0), 0),
+  }))
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -42,15 +46,6 @@ export function useAdmin() {
     }
   }
 
-  async function fetchStats() {
-    try {
-      const data = await $fetch<AdminStats>(`${apiUrl}/admin/stats`)
-      stats.value = data
-    } catch (e: any) {
-      error.value = e.message || 'Failed to fetch stats'
-    }
-  }
-
   return {
     sessions,
     currentSession,
@@ -60,6 +55,5 @@ export function useAdmin() {
     error,
     fetchSessions,
     fetchSession,
-    fetchStats,
   }
 }

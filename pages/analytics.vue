@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-const { sessions, stats, loading, error, fetchSessions, fetchStats } = useAdmin()
+const { sessions, stats, loading, error, fetchSessions } = useAdmin()
 
 function projectName(workingDir?: string): string {
   if (!workingDir) return '—'
@@ -115,6 +115,5 @@ function statusColor(status: string) {
 
 onMounted(() => {
   fetchSessions()
-  fetchStats()
 })
 </script>
