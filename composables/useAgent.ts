@@ -12,7 +12,7 @@ export function useAgent(workingDirRef?: Ref<string>) {
   const tokensUsed = ref(0)
   const maxTokens = ref(2000000)
   const currentIteration = ref(0)
-  const maxIterations = ref(25)
+  const maxIterations = ref(100)
   const isSelfCorrecting = ref(false)
   const error = ref<string | null>(null)
   const lastViewedFile = ref<string | null>(null)
@@ -243,12 +243,6 @@ export function useAgent(workingDirRef?: Ref<string>) {
 
       case 'self_correcting':
         isSelfCorrecting.value = true
-        break
-
-      case 'usage':
-        tokensUsed.value = event.tokens_used
-        currentIteration.value = event.iteration
-        maxIterations.value = event.max_iterations
         break
 
       case 'stream':

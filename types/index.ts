@@ -29,11 +29,13 @@ export interface ResponseEvent {
   content: string
 }
 
-export interface UsageEvent {
-  type: 'usage'
-  tokens_used: number
-  iteration: number
-  max_iterations: number
+export interface StatusEvent {
+  type: 'status'
+  message: string
+}
+
+export interface DoneEvent {
+  type: 'done'
 }
 
 export interface SelfCorrectingEvent {
@@ -70,7 +72,8 @@ export type AgentEvent =
   | ToolResultEvent
   | StreamEvent
   | ResponseEvent
-  | UsageEvent
+  | StatusEvent
+  | DoneEvent
   | SelfCorrectingEvent
   | ErrorEvent
   | SessionEvent
