@@ -1,6 +1,6 @@
 [build]
-  command = "npm_config_python=/dev/null bun install --frozen-lockfile && bun run build"
-  publish = ".output/public"
+  command = "npm_config_python=/dev/null bun install --frozen-lockfile && bun run generate"
+  publish = "dist"
 
 [build.environment]
   NPM_FLAGS = "--version"
