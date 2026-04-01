@@ -1,0 +1,317 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* ═══════════════════════════════════════════════════
+   OUROBOROS — "Obsidian Console" Design System
+   ═══════════════════════════════════════════════════ */
+
+/* ── Nuxt UI primary palette (teal-emerald) ───── */
+:root {
+  --color-primary-50:  #edfff8;
+  --color-primary-100: #d5ffee;
+  --color-primary-200: #aeffde;
+  --color-primary-300: #70ffc6;
+  --color-primary-400: #2bfda7;
+  --color-primary-500: #00d89e;
+  --color-primary-600: #00b87f;
+  --color-primary-700: #009068;
+  --color-primary-800: #067154;
+  --color-primary-900: #075d47;
+  --color-primary-950: #003426;
+
+  /* Obsidian surfaces */
+  --ob-deep:      #06070b;
+  --ob-base:      #0a0c12;
+  --ob-surface:   #0f1119;
+  --ob-elevated:  #161a24;
+  --ob-hover:     #1c2130;
+  --ob-border:    rgba(255, 255, 255, 0.06);
+  --ob-border-hi: rgba(255, 255, 255, 0.10);
+
+  /* Gold accent */
+  --ob-gold:      #e8a830;
+  --ob-gold-dim:  #b8862a;
+  --ob-gold-glow: rgba(232, 168, 48, 0.15);
+
+  /* Text hierarchy */
+  --ob-text:      #e2e5ea;
+  --ob-text-2:    #8b90a0;
+  --ob-text-3:    #505668;
+
+  /* Font families */
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body:    'Outfit', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Base resets ───────────────────────────────── */
+*,
+*::before,
+*::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--ob-deep);
+  color: var(--ob-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+/* ── Custom scrollbar ──────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Background effects ────────────────────────── */
+.ob-bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0, 216, 158, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 80%, rgba(232, 168, 48, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(15, 17, 25, 1) 0%, var(--ob-deep) 100%);
+  pointer-events: none;
+}
+
+.ob-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ── Glass surfaces ────────────────────────────── */
+.ob-glass {
+  background: rgba(15, 17, 25, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--ob-border);
+}
+
+.ob-glass-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ob-glass-hover:hover {
+  background: rgba(22, 26, 36, 0.7);
+  border-color: var(--ob-border-hi);
+  box-shadow: 0 0 20px rgba(0, 216, 158, 0.04);
+}
+
+.ob-glass-active {
+  background: rgba(22, 26, 36, 0.8) !important;
+  border-color: rgba(0, 216, 158, 0.25) !important;
+  box-shadow: 0 0 24px rgba(0, 216, 158, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ── Glow effects ──────────────────────────────── */
+.ob-glow-teal {
+  box-shadow: 0 0 20px rgba(0, 216, 158, 0.08), 0 0 40px rgba(0, 216, 158, 0.04);
+}
+
+.ob-glow-gold {
+  box-shadow: 0 0 20px rgba(232, 168, 48, 0.08), 0 0 40px rgba(232, 168, 48, 0.04);
+}
+
+.ob-text-glow {
+  text-shadow: 0 0 20px rgba(0, 216, 158, 0.3);
+}
+
+/* ── Keyframe animations ───────────────────────── */
+@keyframes ob-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ob-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ob-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ob-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes ob-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(0, 216, 158, 0.4); }
+  70%  { box-shadow: 0 0 0 6px rgba(0, 216, 158, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 216, 158, 0); }
+}
+
+@keyframes ob-breathe {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+@keyframes ob-snake-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Animation utilities ───────────────────────── */
+.ob-animate-up {
+  animation: ob-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.ob-animate-in {
+  animation: ob-fade-in 0.4s ease both;
+}
+.ob-animate-scale {
+  animation: ob-scale-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ob-delay-1 { animation-delay: 0.05s; }
+.ob-delay-2 { animation-delay: 0.10s; }
+.ob-delay-3 { animation-delay: 0.15s; }
+.ob-delay-4 { animation-delay: 0.20s; }
+.ob-delay-5 { animation-delay: 0.25s; }
+.ob-delay-6 { animation-delay: 0.30s; }
+.ob-delay-7 { animation-delay: 0.35s; }
+.ob-delay-8 { animation-delay: 0.40s; }
+
+/* ── Divider / separator ───────────────────────── */
+.ob-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ob-border-hi), transparent);
+}
+
+/* ── Logo styling ──────────────────────────────── */
+.ob-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #00d89e 0%, #e8a830 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ob-snake-flow 6s ease-in-out infinite;
+}
+
+/* ── Badge / pill ──────────────────────────────── */
+.ob-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.ob-badge-teal {
+  background: rgba(0, 216, 158, 0.12);
+  color: #00d89e;
+  border: 1px solid rgba(0, 216, 158, 0.2);
+}
+
+.ob-badge-gold {
+  background: rgba(232, 168, 48, 0.12);
+  color: #e8a830;
+  border: 1px solid rgba(232, 168, 48, 0.2);
+}
+
+.ob-badge-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.ob-badge-gray {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ob-text-2);
+  border: 1px solid var(--ob-border);
+}
+
+/* ── Connected / disconnected dot ──────────────── */
+.ob-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.ob-dot-live {
+  background: #00d89e;
+  animation: ob-pulse-ring 2s infinite;
+}
+.ob-dot-off {
+  background: #ef4444;
+}
+
+/* ── Input & form overrides ────────────────────── */
+input, textarea, select {
+  font-family: var(--font-body) !important;
+}
+
+/* ── Prose overrides for chat ──────────────────── */
+.prose-chat code {
+  font-family: var(--font-mono) !important;
+  font-size: 0.8em;
+}
+.prose-chat pre {
+  font-family: var(--font-mono) !important;
+}
+
+/* ── Mobile utilities ──────────────────────────── */
+@media (max-width: 767px) {
+  .ob-mobile-stack {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .ob-mobile-hide {
+    display: none !important;
+  }
+  .ob-mobile-full {
+    width: 100% !important;
+  }
+}
+
+/* ── Transition utilities ──────────────────────── */
+.ob-transition {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ob-transition-fast {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
