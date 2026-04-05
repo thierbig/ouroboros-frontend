@@ -156,6 +156,8 @@ defineEmits<{
 }>()
 
 const STORAGE_KEY = 'ouroboros_api_key'
+const PROVIDER_KEY = 'ouroboros_provider'
+const MODEL_KEY = 'ouroboros_model'
 const showKeyInput = ref(false)
 const keyInput = ref('')
 const mobileOpen = ref(false)
@@ -169,7 +171,14 @@ onMounted(() => {
   } else {
     showKeyInput.value = true
   }
+  const storedProvider = localStorage.getItem(PROVIDER_KEY) as 'anthropic' | 'openai' | null
+  if (storedProvider) config.value.provider = storedProvider
+  const storedModel = localStorage.getItem(MODEL_KEY)
+  if (storedModel) config.value.model = storedModel
 })
+
+watch(() => config.value.provider, (v) => localStorage.setItem(PROVIDER_KEY, v))
+watch(() => config.value.model, (v) => localStorage.setItem(MODEL_KEY, v))
 
 function saveKey() {
   const key = keyInput.value.trim()

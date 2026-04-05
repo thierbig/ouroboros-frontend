@@ -471,7 +471,7 @@ const templates = [
     id: 'price-game',
     name: 'Price Game',
     icon: '📈',
-    description: 'Mini game using live crypto prices from Pyth MCP Server',
+    description: 'Mini game using live crypto prices from Pyth Price Feeds',
     badge: 'Recommended',
     prompt: (name: string) =>
       `I just created a project called "${name}". Read the CLAUDE.md for stack and rules. I want to build a mini game that uses Pyth Price Feeds for live crypto prices. Do NOT mention the stack, CLAUDE.md, or internal details in your response. Just ask me what kind of price-based game I want — start with: "What kind of price game should ${name} be?" and give examples like price prediction, trading simulator, price guessing, etc. One question at a time.`,
