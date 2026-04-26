@@ -1,7 +1,8 @@
 // composables/useAgent.ts
 import type { AgentConfig, AgentEvent, ChatMessage, ToolCallWithResult, SessionDetail } from '~/types'
 
-export function useAgent(workingDirRef?: Ref<string>) {
+export function useAgent(workingDirRef?: Ref<string>, opts: { autoConnect?: boolean } = {}) {
+  const autoConnect = opts.autoConnect !== false
   const config = useRuntimeConfig()
   const apiUrl = config.public.apiUrl as string
 
@@ -381,11 +382,12 @@ export function useAgent(workingDirRef?: Ref<string>) {
    * Load the latest session for a project from the REST API and restore it.
    * Also sends a resume message to the WebSocket so server-side history is restored.
    */
-  async function loadSessionById(sessionId: string) {
+  async function loadSessionById(sessionId: string, opts: { showcase?: boolean } = {}) {
+    const base = opts.showcase ? `${apiUrl}/showcase/sessions` : `${apiUrl}/admin/sessions`
     try {
-      const session = await $fetch<SessionDetail | null>(`${apiUrl}/admin/sessions/${sessionId}`)
+      const session = await $fetch<SessionDetail | null>(`${base}/${sessionId}`)
       if (!session || !session.messages?.length) return
-      await restoreSession(session)
+      await restoreSession(session, { chunksBase: base })
     } catch {
       // Session not found
     }
@@ -403,7 +405,7 @@ export function useAgent(workingDirRef?: Ref<string>) {
     }
   }
 
-  async function restoreSession(session: SessionDetail) {
+  async function restoreSession(session: SessionDetail, opts: { chunksBase?: string } = {}) {
     let rebuilt = rebuildMessages(session.messages)
     currentSessionId.value = session._id
     tokensUsed.value = session.total_tokens || 0
@@ -417,7 +419,8 @@ export function useAgent(workingDirRef?: Ref<string>) {
     const hasToolCalls = rebuilt.some(m => m.toolCalls?.length)
     if (!hasToolCalls && session._id) {
       try {
-        const chunks = await $fetch<any[]>(`${apiUrl}/admin/sessions/${session._id}/chunks`)
+        const chunksBase = opts.chunksBase || `${apiUrl}/admin/sessions`
+        const chunks = await $fetch<any[]>(`${chunksBase}/${session._id}/chunks`)
         if (chunks?.length) {
           // Inject tool calls from chunks into the last assistant message before response
           const chunkToolCalls: ToolCallWithResult[] = []
@@ -556,7 +559,9 @@ export function useAgent(workingDirRef?: Ref<string>) {
     currentToolCalls = []
   }
 
-  onMounted(connect)
+  onMounted(() => {
+    if (autoConnect) connect()
+  })
   onUnmounted(() => {
     disconnect()
     stopStuckTimer()

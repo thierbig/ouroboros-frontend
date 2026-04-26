@@ -19,16 +19,51 @@
           </p>
         </div>
 
-        <!-- Gate: require API key -->
-        <div v-if="!agentConfig.api_key" class="text-center ob-animate-up ob-delay-2">
-          <div class="ob-glass rounded-xl px-6 py-8 max-w-sm mx-auto">
-            <div class="w-10 h-10 rounded-full border border-[var(--ob-border-hi)] flex items-center justify-center mx-auto mb-4">
-              <svg class="w-5 h-5 text-[var(--ob-text-3)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>
-              </svg>
-            </div>
-            <p class="text-sm text-[var(--ob-text-2)]">Enter your API key in the header to get started.</p>
+        <!-- Showcase for keyless visitors -->
+        <div v-if="!agentConfig.api_key" class="ob-animate-up ob-delay-2">
+          <p class="text-xs font-medium text-[var(--ob-text-3)] uppercase tracking-wider mb-4 text-center" style="font-family: var(--font-mono);">
+            Built with Ouroboros
+          </p>
+          <div v-if="showcase.length === 0" class="ob-glass rounded-xl px-6 py-8 max-w-sm mx-auto text-center">
+            <p class="text-sm text-[var(--ob-text-2)]">No deployed games yet.</p>
+            <p class="text-[11px] text-[var(--ob-text-3)] mt-2">Enter your API key in the header to start building.</p>
           </div>
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
+            <div
+              v-for="(p, idx) in showcase"
+              :key="p.id"
+              class="ob-glass ob-glass-hover rounded-xl overflow-hidden ob-animate-scale group"
+              :class="`ob-delay-${Math.min(idx + 1, 5)}`"
+            >
+              <a
+                :href="p.deploy_url"
+                target="_blank"
+                rel="noopener"
+                class="block p-4 cursor-pointer"
+              >
+                <div class="flex items-center gap-2.5 mb-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                  <p class="text-sm font-medium text-[var(--ob-text)] truncate" style="font-family: var(--font-display);">
+                    {{ p.name }}
+                  </p>
+                </div>
+                <p class="text-[11px] text-[var(--ob-text-3)] ml-[18px] truncate">
+                  {{ p.deploy_url.replace('https://', '') }}
+                </p>
+              </a>
+              <div v-if="p.deploy_session_id" class="border-t border-[var(--ob-border)] px-4 py-2 flex items-center justify-between">
+                <NuxtLink
+                  :to="`/chat?session=${p.deploy_session_id}&readonly=1`"
+                  class="text-[10px] text-[var(--ob-text-3)] hover:text-[var(--ob-text-2)] ob-transition-fast"
+                >
+                  View build conversation &rarr;
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-[var(--ob-text-3)] text-center mt-6">
+            Enter your API key in the header to build your own.
+          </p>
         </div>
 
         <!-- Step 1: Pick or create -->
@@ -298,7 +333,16 @@ interface SessionSummary {
   preview: string
 }
 
+interface ShowcaseProject {
+  id: string
+  name: string
+  deploy_url: string
+  deploy_session_id: string | null
+  project_type?: string
+}
+
 const projects = ref<Project[]>([])
+const showcase = ref<ShowcaseProject[]>([])
 const step = ref<'pick' | 'name' | 'template'>('pick')
 const newProjectName = ref('')
 const creating = ref(false)
@@ -314,7 +358,18 @@ async function fetchProjects() {
   }
 }
 
-onMounted(fetchProjects)
+async function fetchShowcase() {
+  try {
+    showcase.value = await $fetch<ShowcaseProject[]>(`${apiUrl}/showcase/projects`)
+  } catch {
+    // Backend not reachable
+  }
+}
+
+onMounted(() => {
+  fetchProjects()
+  fetchShowcase()
+})
 
 async function selectProject(p: Project) {
   if (selectedProject.value?.id === p.id) {

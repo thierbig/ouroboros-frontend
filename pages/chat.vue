@@ -2,11 +2,21 @@
   <div class="h-screen flex flex-col" style="background: var(--ob-deep);">
     <!-- Connection error banner -->
     <div
-      v-if="!isConnected && messages.length > 0"
+      v-if="!readonly && !isConnected && messages.length > 0"
       class="px-4 py-2 text-sm text-center ob-animate-up"
       style="background: rgba(239, 68, 68, 0.08); border-bottom: 1px solid rgba(239, 68, 68, 0.15); color: #f87171;"
     >
       Disconnected from server. Messages may not be delivered.
+    </div>
+
+    <!-- Read-only banner -->
+    <div
+      v-if="readonly"
+      class="px-4 py-2 text-xs text-center"
+      style="background: rgba(0, 216, 158, 0.06); border-bottom: 1px solid rgba(0, 216, 158, 0.15); color: var(--ob-text-2);"
+    >
+      Read-only build conversation.
+      <a v-if="projectDeployUrl" :href="projectDeployUrl" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 ml-1">Open the live site &rarr;</a>
     </div>
 
     <AppHeader
@@ -69,7 +79,7 @@
 
         <!-- Stuck indicator -->
         <div
-          v-if="isStuck"
+          v-if="!readonly && isStuck"
           class="flex items-center gap-3 px-4 py-3 border-t border-[var(--ob-border)]"
           style="background: rgba(245, 158, 11, 0.06);"
         >
@@ -95,7 +105,7 @@
 
         <!-- Error recovery banner -->
         <div
-          v-if="sessionError && !isStreaming"
+          v-if="!readonly && sessionError && !isStreaming"
           class="border-t border-[var(--ob-border)] px-4 py-3 flex items-center gap-3"
           style="background: rgba(239, 68, 68, 0.05);"
         >
@@ -113,7 +123,7 @@
 
         <!-- Deploy updates offer -->
         <div
-          v-if="showDeployOffer && !isStreaming && !sessionError"
+          v-if="!readonly && showDeployOffer && !isStreaming && !sessionError"
           class="border-t border-[var(--ob-border)] px-4 py-3 flex items-center gap-3"
           style="background: rgba(0, 216, 158, 0.04);"
         >
@@ -134,7 +144,7 @@
         </div>
 
         <!-- Input -->
-        <div class="border-t border-[var(--ob-border)] p-4" style="background: rgba(10, 12, 18, 0.6);">
+        <div v-if="!readonly" class="border-t border-[var(--ob-border)] p-4" style="background: rgba(10, 12, 18, 0.6);">
           <form @submit.prevent="submitInput" class="flex gap-2 items-end">
             <UTextarea
               v-model="input"
@@ -273,6 +283,7 @@ const apiUrl = runtimeConfig.public.apiUrl as string
 const projectPath = (route.query.project as string) || ''
 const initialPrompt = (route.query.prompt as string) || ''
 const sessionIdParam = (route.query.session as string) || ''
+const readonly = route.query.readonly === '1'
 
 const agentConfig = ref<AgentConfig>({
   provider: 'anthropic',
@@ -306,7 +317,7 @@ const {
   detectedDeployUrl,
   agentStatus,
   error: agentError,
-} = useAgent(workingDirRef)
+} = useAgent(workingDirRef, { autoConnect: !readonly })
 
 const input = ref('')
 const sessionError = ref(false)
@@ -500,6 +511,24 @@ watch(detectedDeployUrl, (url) => {
 
 // Restore API key from localStorage
 onMounted(async () => {
+  // Read-only mode: load showcase session, derive project info from showcase endpoint
+  if (readonly && sessionIdParam) {
+    await loadSessionById(sessionIdParam, { showcase: true })
+    try {
+      const list = await $fetch<any[]>(`${apiUrl}/showcase/projects`)
+      const match = list.find(p => p.deploy_session_id === sessionIdParam) || list[0]
+      if (match) {
+        projectName.value = match.name
+        projectDeployUrl.value = match.deploy_url || null
+        projectType.value = match.project_type || 'web-app'
+        deployUrl.value = match.deploy_url || null
+      }
+    } catch {
+      // Backend not reachable
+    }
+    return
+  }
+
   if (projectPath) {
     try {
       const projects = await $fetch<Project[]>(`${apiUrl}/projects`)
@@ -542,6 +571,7 @@ onMounted(async () => {
 
 // On project switch from header dropdown: reload
 watch(workingDirRef, async (newDir, oldDir) => {
+  if (readonly) return
   if (oldDir && newDir !== oldDir) {
     clearMessages()
     lastViewedFile.value = null
